@@ -7,8 +7,8 @@
 
 void displayHelp(){
     printf("Prime finder. This program uses different prime finding algorithms, they diverge on execution time and memory usage. \nUsage: primes [options] <unsigned int>\n");
-    printf("Options:\n-h: display this help\n-r: display a bool for the last result only[default]\n-l: display a long list with time and memory info\n-s: display a short list with primes only\n");
-    printf("-t: uses Trial Division Algorithm, it uses less memory but more time\n-e: uses Sieve of Eratosthenes Algorithm, it uses more memory but is pretty fast[default]\n-d: uses Dijkstra's Prime Finding Algorithm, it is faster than Trial Division and uses less memory than Eratosthenes\n"); 
+    printf("Options:\n-h: display this help\n-r: display a bool for the last result only[default]\n-l: display a long list with time and memory info\n-s: display a short list with primes only\n-i: display only the last result, the elapsed time and memory usage\n");
+    printf("-t: uses Trial Division Algorithm, it uses less memory but more time\n-e: uses Sieve of Eratosthenes Algorithm, it uses more memory but is pretty fast[default]\n"); 
     printf("You can combine one display method with one algorithm, eg.: -ld\n");
 }
 
@@ -52,6 +52,10 @@ void trial_division(unsigned int n, int print){
         printf("Memory used: %luB\n", n*(sizeof(bool)+sizeof(unsigned int)));
     }else if(print == 2){
         printArray(primes, numberofprimes); 
+    }else if(print == 3){
+        printf("%s\n", (*(primes+numberofprimes-1) == n) ? "true" : "false");
+        printf("Time taken: %f seconds\n", (float)time_req / CLOCKS_PER_SEC); 
+        printf("Memory used: %luB\n", n*sizeof(unsigned int)); 
     } 
 
     free(primes);
@@ -90,6 +94,10 @@ void sieve_of_eratosthenes(unsigned int n, int print){
         printf("Memory used: %luB\n", n*(sizeof(bool)+sizeof(unsigned int)));
     }else if(print == 2){
         printArray(primes, numberofprimes); 
+    }else if(print == 3){
+        printf("%s\n", (*(numberArray+n-1)) ? "true" : "false");
+        printf("Time taken: %f seconds\n", (float)time_req / CLOCKS_PER_SEC); 
+        printf("Memory used: %luB\n", n*(1+sizeof(unsigned int))); 
     } 
     
     free(numberArray);    
@@ -115,6 +123,9 @@ int main(int argc, char **argv){
             case 104: //h
                 displayHelp();
                 break; 
+            case 206: //ie
+                sieve_of_eratosthenes(n, 3);
+                break;
             case 209: //le
                 sieve_of_eratosthenes(n, 1);
                 break;
@@ -125,6 +136,9 @@ int main(int argc, char **argv){
                 sieve_of_eratosthenes(n, 2);
                 break;
 
+            case(221): //it
+                trial_division(n, 3);
+                break;
             case 224: //lt
                 trial_division(n, 1);
                 printf("NOTE: Trial Division does not return the same long output as Eratosthenes\n");
