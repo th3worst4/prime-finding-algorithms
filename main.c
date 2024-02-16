@@ -1,9 +1,11 @@
+#include <bits/types/struct_rusage.h>
 #include <stdio.h>
-#include <math.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+#include <sys/resource.h>
 
 void displayHelp(){
     printf("Prime finder. This program uses different prime finding algorithms, they diverge on execution time and memory usage. \nUsage: primes [options] <unsigned int>\n");
@@ -22,7 +24,14 @@ void printArray(unsigned int *primeArray, size_t size){
     for(size_t i = 0; i < size; i++) printf("%u\n", *(primeArray+i));
 }
 
+long get_mem(){
+    struct rusage memusage;
+    getrusage(RUSAGE_SELF, &memusage);
+    return memusage.ru_maxrss;
+}
+
 void trial_division(unsigned int n, int print){
+    long mem = get_mem();
     unsigned int *primes = malloc(n*sizeof(unsigned int));
 
     clock_t time_req = clock();
@@ -42,6 +51,8 @@ void trial_division(unsigned int n, int print){
         }
     }
     time_req = clock() - time_req;
+    mem = get_mem() - mem;
+    
     primes = realloc(primes, numberofprimes*sizeof(unsigned int));
     
     if(print == 0){
@@ -49,19 +60,20 @@ void trial_division(unsigned int n, int print){
     }else if(print == 1){
         printArray(primes, numberofprimes);
         printf("Time taken: %f seconds\n", (float)time_req / CLOCKS_PER_SEC); 
-        printf("Memory used: %luB\n", n*(sizeof(bool)+sizeof(unsigned int)));
+        printf("Memory used: %luB\n", mem);
     }else if(print == 2){
         printArray(primes, numberofprimes); 
     }else if(print == 3){
         printf("%s\n", (*(primes+numberofprimes-1) == n) ? "true" : "false");
         printf("Time taken: %f seconds\n", (float)time_req / CLOCKS_PER_SEC); 
-        printf("Memory used: %luB\n", n*sizeof(unsigned int)); 
+        printf("Memory used: %luB\n", mem); 
     } 
 
     free(primes);
 }
 
 void sieve_of_eratosthenes(unsigned int n, int print){
+    long mem = get_mem();
     bool *numberArray = malloc(n);
     unsigned int *primes = malloc(n*sizeof(unsigned int));
     size_t numberofprimes = 0;
@@ -83,6 +95,7 @@ void sieve_of_eratosthenes(unsigned int n, int print){
         }
     }
     time_req = clock() - time_req;
+    mem = get_mem() - mem;
     
     primes = realloc(primes, numberofprimes*sizeof(unsigned int));
     
@@ -91,13 +104,13 @@ void sieve_of_eratosthenes(unsigned int n, int print){
     }else if(print == 1){
         printTable(numberArray, n);
         printf("Time taken: %f seconds\n", (float)time_req / CLOCKS_PER_SEC); 
-        printf("Memory used: %luB\n", n*(sizeof(bool)+sizeof(unsigned int)));
+        printf("Memory used: %luB\n", mem);
     }else if(print == 2){
         printArray(primes, numberofprimes); 
     }else if(print == 3){
         printf("%s\n", (*(numberArray+n-1)) ? "true" : "false");
         printf("Time taken: %f seconds\n", (float)time_req / CLOCKS_PER_SEC); 
-        printf("Memory used: %luB\n", n*(1+sizeof(unsigned int))); 
+        printf("Memory used: %luB\n", mem); 
     } 
     
     free(numberArray);    
